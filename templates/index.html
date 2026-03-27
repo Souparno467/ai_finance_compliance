@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ComplianceAI — Policy Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">CA</span>
+      <div>
+        <div class="brand-name">ComplianceAI</div>
+        <div class="brand-sub">RegTech Copilot</div>
+      </div>
+    </div>
+
+    <nav class="nav-tabs" aria-label="Primary">
+      <button class="nav-btn active" data-tab="qa">Ask Policy</button>
+      <button class="nav-btn" data-tab="checklist">Checklist</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="status-pill"><span class="status-dot" aria-hidden="true"></span>Online</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title" id="tabTitle">Policy Q&A</span>
+        <span class="topbar-badge">KYC · AML · RBI</span>
+      </div>
+      <button class="rebuild-btn" id="rebuildBtn" title="Rebuild vector index">Reindex</button>
+    </header>
+
+    <section class="tab-panel active" id="tab-qa">
+      <div class="chat-area" id="chatArea">
+        <div class="chat-welcome">
+          <div class="welcome-icon" aria-hidden="true">CA</div>
+          <h2>Ask your compliance question</h2>
+          <p>Ask about KYC/AML/RBI policies. Responses are grounded in your locally indexed knowledge base.</p>
+          <div class="example-qs">
+            <button class="ex-q" onclick="fillQ(this)">What checks are required for an INR 50,000 transfer?</button>
+            <button class="ex-q" onclick="fillQ(this)">What documents are needed for KYC verification?</button>
+            <button class="ex-q" onclick="fillQ(this)">What are the AML reporting obligations?</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-row">
+        <textarea class="q-input" id="qaInput" rows="2" placeholder="e.g. What PAN verification is required for transactions above INR 50,000?"></textarea>
+        <button class="send-btn" id="sendBtn">Ask</button>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-checklist">
+      <div class="panel-body">
+        <h2 class="panel-heading">Compliance Checklist Generator</h2>
+        <p class="panel-sub">Enter a topic/process and get a compliance checklist.</p>
+        <div class="select-wrap">
+          <input class="q-input inline" id="checklistTopic" type="text" placeholder="e.g. High-value transaction above INR 10 lakh"/>
+          <button class="action-btn" id="checklistBtn">Generate</button>
+        </div>
+        <div class="checklist-wrap" id="checklistResult" style="display:none"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
