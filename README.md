@@ -8,9 +8,7 @@ Built with **Flask + LangChain + Groq + FAISS**.
 
 ## 🚀 Features
 
-- 📄 **Document Upload** — PDF, DOCX, TXT (KYC guidelines, AML policies, RBI circulars)
 - 💬 **Policy Q&A** — Ask natural language questions with cited answers from your documents
-- 📋 **Document Summarizer** — AI executive summary with compliance highlights
 - ✅ **Compliance Checklist Generator** — Instant RBI/KYC/AML checklists by topic
 - 🔍 **Vector Search** — FAISS-powered semantic retrieval for fast clause lookup
 
@@ -95,7 +93,7 @@ ai_finance_compliance/
 | Orchestration | LangChain |
 | Vector Store | FAISS |
 | Embeddings | sentence-transformers/all-MiniLM-L6-v2 |
-| Frontend | Vanilla HTML/CSS/JS |
+| Frontend | HTML/CSS/JS |
 
 ---
 
