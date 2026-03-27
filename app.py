@@ -32,6 +32,14 @@ def ask():
     try:
         result = ask_question(question)
         return jsonify(result)
+    except FileNotFoundError:
+        # If uploads exist but index isn't built yet, best-effort build once and retry.
+        try:
+            ensure_vectorstore_ready(app.config['UPLOAD_FOLDER'])
+            result = ask_question(question)
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

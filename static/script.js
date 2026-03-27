@@ -133,6 +133,17 @@ async function refreshDocuments() {
   }
 }
 
+async function rebuildIndex(showSuccessToast = true) {
+  try {
+    const res = await fetch('/rebuild-index', { method: 'POST' });
+    const data = await res.json();
+    if (data.error) showToast(data.error, 'error');
+    else if (showSuccessToast) showToast(data.message, 'success');
+  } catch (e) {
+    showToast('Failed to rebuild index', 'error');
+  }
+}
+
 uploadBtn.addEventListener('click', () => docInput.click());
 refreshDocsBtn.addEventListener('click', refreshDocuments);
 docInput.addEventListener('change', async () => {
@@ -154,15 +165,10 @@ docInput.addEventListener('change', async () => {
       const savedCount = (data.saved || []).length;
       showToast(`Uploaded ${savedCount} file(s)`, 'success');
       await refreshDocuments();
-      // Best effort: rebuild after upload so Q&A works immediately.
-      try {
-        const r = await fetch('/rebuild-index', { method: 'POST' });
-        const d = await r.json();
-        if (d.error) showToast(d.error, 'error');
-        else showToast(d.message, 'success');
-      } catch (e) {
-        showToast('Upload ok, but reindex failed', 'error');
-      }
+
+      // Kick off reindex in the background so upload UI doesn't feel "stuck".
+      showToast('Indexing…', 'success');
+      rebuildIndex(true);
     }
   } catch (e) {
     showToast('Upload failed', 'error');
@@ -263,14 +269,7 @@ document.getElementById('rebuildBtn').addEventListener('click', async () => {
   const btn = document.getElementById('rebuildBtn');
   btn.textContent = 'Indexing…';
   btn.disabled = true;
-  try {
-    const res = await fetch('/rebuild-index', { method: 'POST' });
-    const data = await res.json();
-    if (data.error) showToast(data.error, 'error');
-    else showToast(data.message, 'success');
-  } catch (e) {
-    showToast('Failed to rebuild index', 'error');
-  }
+  await rebuildIndex(true);
   btn.textContent = 'Reindex';
   btn.disabled = false;
 });

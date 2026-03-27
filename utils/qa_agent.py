@@ -53,9 +53,11 @@ def get_embeddings():
     global _embeddings
     if _embeddings is None:
         os.makedirs(_cache_dir, exist_ok=True)
-        # Default to a no-download embedding path on Windows unless explicitly overridden.
+        # Default to a no-download embedding path (fast, no model downloads) unless explicitly overridden.
+        # Useful on hosts like Render where downloads can be slow and delay port binding.
         force_hf = os.environ.get("FORCE_HF_EMBEDDINGS", "").strip().lower() in {"1", "true", "yes"}
-        if os.name == "nt" and not force_hf:
+        backend = os.environ.get("EMBEDDINGS_BACKEND", "hash").strip().lower()
+        if (backend != "hf") and not force_hf:
             _embeddings = HashEmbeddings()
             return _embeddings
 
