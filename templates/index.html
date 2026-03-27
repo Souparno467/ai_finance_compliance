@@ -23,6 +23,19 @@
       <button class="nav-btn" data-tab="checklist">Checklist</button>
     </nav>
 
+    <div class="upload-panel" aria-label="Documents">
+      <div class="doc-list-title">Documents</div>
+      <div class="upload-row">
+        <input id="docInput" type="file" multiple accept=".pdf,.txt,.docx" hidden />
+        <button class="upload-btn" id="uploadBtn" type="button">Upload</button>
+        <button class="upload-btn secondary" id="refreshDocsBtn" type="button" title="Refresh document list">Refresh</button>
+      </div>
+      <div class="doc-list-wrap" id="docListWrap">
+        <ul class="doc-list" id="docList"></ul>
+        <div class="doc-empty" id="docEmpty" style="display:none">No documents yet.</div>
+      </div>
+    </div>
+
     <div class="sidebar-footer">
       <span class="status-pill"><span class="status-dot" aria-hidden="true"></span>Online</span>
     </div>

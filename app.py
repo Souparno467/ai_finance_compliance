@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
+from werkzeug.utils import secure_filename
 
 # Load environment variables from .env (if present) before importing modules that rely on them.
 load_dotenv()
@@ -12,6 +13,10 @@ from utils.summarizer import generate_compliance_checklist
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
+app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'txt', 'docx'}
+
+def _allowed_file(filename: str) -> bool:
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 @app.route('/')
 def index():
@@ -41,6 +46,39 @@ def checklist():
         return jsonify({'checklist': items})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/documents', methods=['GET'])
+def documents():
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    items = []
+    for filename in sorted(os.listdir(app.config['UPLOAD_FOLDER'])):
+        if _allowed_file(filename):
+            items.append(filename)
+    return jsonify({'documents': items})
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    files = request.files.getlist('files')
+    if not files:
+        return jsonify({'error': 'No files provided'}), 400
+
+    saved = []
+    skipped = []
+    for f in files:
+        if not f or not getattr(f, "filename", ""):
+            continue
+        filename = secure_filename(f.filename)
+        if not filename or not _allowed_file(filename):
+            skipped.append(f.filename)
+            continue
+        dest = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        f.save(dest)
+        saved.append(filename)
+
+    if not saved and skipped:
+        return jsonify({'error': 'No supported files uploaded (pdf, txt, docx).'}), 400
+    return jsonify({'saved': saved, 'skipped': skipped})
 
 @app.route('/rebuild-index', methods=['POST'])
 def rebuild_index():

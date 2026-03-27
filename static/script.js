@@ -104,6 +104,76 @@ function appendAIMsg(answer, sources) {
   scrollChat();
 }
 
+// ===== DOCUMENT UPLOAD / LIST =====
+const docInput = document.getElementById('docInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const refreshDocsBtn = document.getElementById('refreshDocsBtn');
+const docList = document.getElementById('docList');
+const docEmpty = document.getElementById('docEmpty');
+
+function renderDocList(docs) {
+  docList.innerHTML = '';
+  const items = docs || [];
+  docEmpty.style.display = items.length ? 'none' : 'block';
+  items.forEach(name => {
+    const li = document.createElement('li');
+    li.className = 'doc-item';
+    li.innerHTML = `<span class="doc-icon">DOC</span><span class="doc-name">${escHtml(name)}</span>`;
+    docList.appendChild(li);
+  });
+}
+
+async function refreshDocuments() {
+  try {
+    const res = await fetch('/documents');
+    const data = await res.json();
+    renderDocList(data.documents || []);
+  } catch (e) {
+    showToast('Failed to load documents', 'error');
+  }
+}
+
+uploadBtn.addEventListener('click', () => docInput.click());
+refreshDocsBtn.addEventListener('click', refreshDocuments);
+docInput.addEventListener('change', async () => {
+  const files = Array.from(docInput.files || []);
+  if (!files.length) return;
+
+  uploadBtn.disabled = true;
+  refreshDocsBtn.disabled = true;
+  uploadBtn.textContent = 'Uploading…';
+
+  try {
+    const fd = new FormData();
+    files.forEach(f => fd.append('files', f));
+    const res = await fetch('/upload', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) {
+      showToast(data.error, 'error');
+    } else {
+      const savedCount = (data.saved || []).length;
+      showToast(`Uploaded ${savedCount} file(s)`, 'success');
+      await refreshDocuments();
+      // Best effort: rebuild after upload so Q&A works immediately.
+      try {
+        const r = await fetch('/rebuild-index', { method: 'POST' });
+        const d = await r.json();
+        if (d.error) showToast(d.error, 'error');
+        else showToast(d.message, 'success');
+      } catch (e) {
+        showToast('Upload ok, but reindex failed', 'error');
+      }
+    }
+  } catch (e) {
+    showToast('Upload failed', 'error');
+  }
+
+  docInput.value = '';
+  uploadBtn.disabled = false;
+  refreshDocsBtn.disabled = false;
+  uploadBtn.textContent = 'Upload';
+});
+
 async function sendQuestion() {
   const q = qaInput.value.trim();
   if (!q) return;
@@ -204,3 +274,6 @@ document.getElementById('rebuildBtn').addEventListener('click', async () => {
   btn.textContent = 'Reindex';
   btn.disabled = false;
 });
+
+// Initial load
+refreshDocuments();

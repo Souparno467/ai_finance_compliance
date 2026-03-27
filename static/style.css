@@ -177,6 +177,37 @@ body {
   font-family: var(--font-mono);
 }
 
+.upload-panel {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.upload-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 0 12px;
+}
+
+.upload-btn {
+  padding: 8px 10px;
+  background: var(--sidebar-surface);
+  border: 1px solid var(--sidebar-border);
+  color: var(--sidebar-muted);
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.upload-btn.secondary {
+  background: transparent;
+  color: var(--sidebar-dim);
+}
+
+.upload-btn:hover { border-color: rgba(30,79,255,0.45); color: var(--sidebar-text); }
+.upload-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
 .sidebar-footer {
   padding: 14px 18px 0;
   font-size: 10px;
