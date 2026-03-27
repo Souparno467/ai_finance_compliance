@@ -1,11 +1,11 @@
 ﻿import os
 
-from langchain_community.document_loaders import Docx2txtLoader, PyPDFLoader, TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_groq import ChatGroq
+
 
 
 def get_llm():
+    from langchain_groq import ChatGroq
+
     api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
         raise EnvironmentError("GROQ_API_KEY not set.")
@@ -18,6 +18,8 @@ def get_llm():
 
 
 def load_document(filepath: str):
+    from langchain_community.document_loaders import Docx2txtLoader, PyPDFLoader, TextLoader
+
     ext = filepath.rsplit(".", 1)[-1].lower()
     if ext == "pdf":
         loader = PyPDFLoader(filepath)
@@ -29,6 +31,8 @@ def load_document(filepath: str):
 
 
 def summarize_document(filepath: str) -> str:
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+
     llm = get_llm()
     raw_docs = load_document(filepath)
 

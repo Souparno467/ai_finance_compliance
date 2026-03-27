@@ -2,11 +2,6 @@ import os
 import math
 import hashlib
 import re
-from langchain_community.document_loaders import PyPDFLoader, TextLoader, Docx2txtLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_groq import ChatGroq
 from langchain_core.embeddings import Embeddings
 
 VECTORSTORE_K = 5
@@ -66,6 +61,7 @@ def get_embeddings():
 
         try:
             # Prefer transformer embeddings when available.
+            from langchain_huggingface import HuggingFaceEmbeddings
             emb = HuggingFaceEmbeddings(
                 model="sentence-transformers/all-MiniLM-L6-v2",
                 cache_folder=os.path.join(_cache_dir, "huggingface"),
@@ -79,6 +75,8 @@ def get_embeddings():
     return _embeddings
 
 def load_document(filepath: str):
+    from langchain_community.document_loaders import PyPDFLoader, TextLoader, Docx2txtLoader
+
     ext = filepath.rsplit('.', 1)[-1].lower()
     if ext == 'pdf':
         loader = PyPDFLoader(filepath)
@@ -90,6 +88,9 @@ def load_document(filepath: str):
 
 def build_vectorstore_from_uploads(upload_folder: str) -> int:
     global _vectorstore
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+    from langchain_community.vectorstores import FAISS
+
     all_docs = []
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
 
@@ -119,6 +120,8 @@ def build_vectorstore_from_uploads(upload_folder: str) -> int:
 
 def load_vectorstore():
     global _vectorstore
+    from langchain_community.vectorstores import FAISS
+
     if _vectorstore is not None:
         return _vectorstore
     if os.path.exists(VECTORSTORE_PATH):
@@ -130,6 +133,8 @@ def load_vectorstore():
     raise FileNotFoundError("No vector index found. Add documents to the uploads folder and reindex.")
 
 def get_llm():
+    from langchain_groq import ChatGroq
+
     api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
         raise EnvironmentError("GROQ_API_KEY not set.")
